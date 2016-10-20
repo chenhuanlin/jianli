@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>test</title>
+    <script src="http://cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+</head>
+
+<body>
+    <a href='javascript' id='btn'>扫一扫</a>
+    <script>
+    $('#btn').click(function() {
+        alert(1);
+    })
+    $.post("http://454432429.applinzi.com/php/getsign.php", {
+            url: window.location.href
+        },
+        function(data) {
+            //console.log(data);
+
+            pos = data.indexOf('}');
+            prepos = data.indexOf('{');
+            dataStr = data.substring(prepos, pos + 1);
+
+            //console.log(dataStr);
+            objData = JSON.parse(dataStr);
+            //console.log(dataStr);
+            wx.config({
+                debug: true,
+                appId: objData.appId,
+                timestamp: objData.timestamp,
+                nonceStr: objData.nonceStr,
+                signature: objData.signature,
+                jsApiList: [
+                    'scanQRCode', 'getLoction'
+                ]
+            });
+            wx.ready(function() {
+                /* wx.scanQRCode({
+                    needResult:1,
+                    scanType:['qrCode','barCode'],
+                    success:function(res){
+                    	var result =res.resultStr
+                    
+                    }
+                });*/
+                wx.scanQRCode({
+                    needResult: 0, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+                    scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+                    success: function(res) {
+                        var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+                    }
+                });
+                wx.getLocation({
+                    type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                    success: function(res) {
+                        var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+                        var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+                        var speed = res.speed; // 速度，以米/每秒计
+                        var accuracy = res.accuracy; // 位置精度
+                        // alert(latitude);
+                    }
+
+                });
+            });
+
+        });
+    </script>
+</body>
+<html>
